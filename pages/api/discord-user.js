@@ -1,8 +1,9 @@
 // /pages/api/discord-user.js
 export default async function handler(req, res) {
-  const { id } = req.query;
+  const { id, userId } = req.query;
+  const queryId = id || userId;
 
-  if (!id) {
+  if (!queryId) {
     return res.status(400).json({ error: 'Missing user ID' });
   }
 

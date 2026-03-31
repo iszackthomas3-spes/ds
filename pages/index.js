@@ -169,7 +169,10 @@ export default function RobloxDiscordLookupSite() {
             <div className="card">
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <User style={{ width: '1.25rem', height: '1.25rem' }} /> Roblox Username Lookup
+                  <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Roblox Username Lookup
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

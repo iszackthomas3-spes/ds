@@ -5,17 +5,19 @@ export default function Home() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      backgroundColor: '#0f0f0f',
+      backgroundColor: '#1a1a1a',
       margin: 0,
       fontFamily: 'Arial, sans-serif'
     }}>
-      <h1 style={{
-        fontSize: '48px',
-        color: '#ffffff',
-        textAlign: 'center'
-      }}>
-        Join Our Discord
-      </h1>
+      <div style={{textAlign: 'center'}}>
+        <h1 style={{
+          fontSize: '48px',
+          color: '#ffffff',
+          margin: '0 0 20px 0'
+        }}>
+          Join Our Discord
+        </h1>
+      </div>
     </div>
   );
 }

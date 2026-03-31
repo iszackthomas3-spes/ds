@@ -13,7 +13,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://discord.com/api/v10/users/${id}`, {
+    const response = await fetch(`https://discord.com/api/v10/users/${queryId}`, {
       headers: {
         Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
       },

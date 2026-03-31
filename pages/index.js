@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { Search, User, Shield, ExternalLink, AlertCircle } from 'lucide-react';
 
 async function fetchJson(url, options = {}) {
   const res = await fetch(url, options);
@@ -135,7 +134,9 @@ export default function RobloxDiscordLookupSite() {
         <div className="card" style={{ marginBottom: '2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.1)', padding: '0.75rem' }}>
-              <Search style={{ width: '1.5rem', height: '1.5rem' }} />
+              <svg style={{ width: '1.5rem', height: '1.5rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
             <div>
               <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', letterSpacing: '-0.025em', margin: 0 }}>User Lookup Hub</h1>
@@ -191,7 +192,9 @@ export default function RobloxDiscordLookupSite() {
                 {robloxError && (
                   <div className="alert alert-error">
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <AlertCircle style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} />
+                      <svg style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 4v2m8-4a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       <span>{robloxError}</span>
                     </div>
                   </div>
@@ -239,7 +242,10 @@ export default function RobloxDiscordLookupSite() {
                         rel="noopener noreferrer"
                         className="profile-link"
                       >
-                        View Profile <ExternalLink style={{ width: '1rem', height: '1rem' }} />
+                        View Profile 
+                        <svg style={{ width: '1rem', height: '1rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
                       </a>
                     )}
                   </div>
@@ -252,7 +258,10 @@ export default function RobloxDiscordLookupSite() {
             <div className="card">
               <div style={{ marginBottom: '1.5rem' }}>
                 <div style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Shield style={{ width: '1.25rem', height: '1.25rem' }} /> Discord User Lookup
+                  <svg style={{ width: '1.25rem', height: '1.25rem' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Discord User Lookup
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -281,7 +290,9 @@ export default function RobloxDiscordLookupSite() {
                 {discordError && (
                   <div className="alert alert-error">
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <AlertCircle style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} />
+                      <svg style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 4v2m8-4a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       <span>{discordError}</span>
                     </div>
                   </div>

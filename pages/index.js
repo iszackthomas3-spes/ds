@@ -1,10 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { Search, User, Shield, ExternalLink, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 async function fetchJson(url, options = {}) {
   const res = await fetch(url, options);
@@ -25,6 +20,7 @@ export default function RobloxDiscordLookupSite() {
   const [discordLoading, setDiscordLoading] = useState(false);
   const [discordError, setDiscordError] = useState('');
   const [discordData, setDiscordData] = useState(null);
+  const [activeTab, setActiveTab] = useState('roblox');
 
   const robloxProfileUrl = useMemo(() => {
     if (!robloxData?.id) return null;
@@ -105,175 +101,243 @@ export default function RobloxDiscordLookupSite() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-8 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl bg-white/10 p-3">
-              <Search className="h-6 w-6" />
+    <div style={{ minHeight: '100vh', background: '#18181b', color: 'white' }}>
+      <style>{`
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .card { border: 1px solid rgba(255,255,255,0.1); border-radius: 1.5rem; background: rgba(255,255,255,0.05); padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); }
+        .input { flex: 1; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 1rem; background: rgba(0,0,0,0.2); color: white; font-size: 1rem; outline: none; font-family: inherit; }
+        .input:focus { border-color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); }
+        .button { padding: 0.75rem 1.5rem; border: none; border-radius: 1rem; background: #3b82f6; color: white; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 1rem; }
+        .button:hover:not(:disabled) { background: #2563eb; }
+        .button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .alert { padding: 1rem; border: 1px solid; border-radius: 0.75rem; margin-bottom: 1rem; }
+        .alert-error { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); color: rgb(254,226,226); }
+        .alert-warning { border-color: rgba(217,119,6,0.3); background: rgba(217,119,6,0.1); color: rgb(254,243,199); }
+        .tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .tab-button { padding: 0.75rem 1.5rem; border: none; border-bottom: 2px solid transparent; background: transparent; color: white; cursor: pointer; font-weight: 500; transition: all 0.2s; font-family: inherit; font-size: 1rem; }
+        .tab-button.active { border-bottom-color: #3b82f6; color: #3b82f6; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+        .info-card { border: 1px solid rgba(255,255,255,0.1); border-radius: 1.5rem; background: rgba(0,0,0,0.2); padding: 1.25rem; }
+        .info-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.2em; color: rgb(161,161,170); margin-bottom: 0.5rem; }
+        .info-value { font-size: 1.125rem; font-weight: 600; color: rgb(228,228,231); word-break: break-word; }
+        .flex-row { display: flex; flex-direction: column; gap: 0.75rem; }
+        @media (min-width: 640px) { .flex-row { flex-direction: row; } }
+        .avatar { width: 8rem; height: 8rem; border-radius: 0.75rem; margin-bottom: 1rem; object-fit: cover; }
+        .avatar-circle { width: 8rem; height: 8rem; border-radius: 50%; margin-bottom: 1rem; object-fit: cover; }
+        .profile-link { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem; color: #3b82f6; text-decoration: none; }
+        .profile-link:hover { text-decoration: underline; }
+        .code-block { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; margin-top: 1.5rem; }
+        pre { margin: 0; padding: 1rem; color: rgb(190,190,190); font-size: 0.75rem; line-height: 1.4; overflow-x: auto; }
+      `}</style>
+
+      <div style={{ maxWidth: '90rem', margin: '0 auto', padding: '2.5rem 1rem' }}>
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ borderRadius: '1rem', background: 'rgba(255,255,255,0.1)', padding: '0.75rem' }}>
+              <Search style={{ width: '1.5rem', height: '1.5rem' }} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">User Lookup Hub</h1>
-              <p className="text-sm text-zinc-300">
+              <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', letterSpacing: '-0.025em', margin: 0 }}>User Lookup Hub</h1>
+              <p style={{ fontSize: '0.875rem', color: 'rgb(212,212,216)', margin: '0.5rem 0 0 0' }}>
                 Search Roblox users now, with a Discord lookup section ready for backend integration.
               </p>
             </div>
           </div>
         </div>
 
-        <Tabs defaultValue="roblox" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 rounded-2xl bg-white/5">
-            <TabsTrigger value="roblox" className="rounded-2xl">Roblox Search</TabsTrigger>
-            <TabsTrigger value="discord" className="rounded-2xl">Discord Search</TabsTrigger>
-          </TabsList>
+        <div>
+          <div className="tabs">
+            <button 
+              className={`tab-button ${activeTab === 'roblox' ? 'active' : ''}`}
+              onClick={() => setActiveTab('roblox')}
+            >
+              Roblox Search
+            </button>
+            <button 
+              className={`tab-button ${activeTab === 'discord' ? 'active' : ''}`}
+              onClick={() => setActiveTab('discord')}
+            >
+              Discord Search
+            </button>
+          </div>
 
-          <TabsContent value="roblox">
-            <Card className="rounded-3xl border-white/10 bg-white/5 text-white shadow-xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <User className="h-5 w-5" /> Roblox Username Lookup
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Input
+          {activeTab === 'roblox' && (
+            <div className="card">
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <User style={{ width: '1.25rem', height: '1.25rem' }} /> Roblox Username Lookup
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="flex-row">
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Enter a Roblox username"
                     value={robloxQuery}
                     onChange={(e) => setRobloxQuery(e.target.value)}
-                    placeholder="Enter Roblox username"
-                    className="border-white/10 bg-black/30 text-white placeholder:text-zinc-400"
                     onKeyDown={(e) => e.key === 'Enter' && searchRoblox()}
                   />
-                  <Button onClick={searchRoblox} disabled={robloxLoading} className="rounded-2xl">
-                    {robloxLoading ? 'Searching...' : 'Search Roblox'}
-                  </Button>
+                  <button 
+                    className="button" 
+                    onClick={searchRoblox} 
+                    disabled={robloxLoading}
+                  >
+                    {robloxLoading ? 'Searching...' : 'Search'}
+                  </button>
                 </div>
 
                 {robloxError && (
-                  <Alert className="border-red-500/30 bg-red-500/10 text-red-100">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{robloxError}</AlertDescription>
-                  </Alert>
-                )}
-
-                {robloxData && (
-                  <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-                    <Card className="rounded-3xl border-white/10 bg-black/20 text-white">
-                      <CardContent className="flex flex-col items-center gap-4 p-6">
-                        {robloxData.avatarUrl ? (
-                          <img
-                            src={robloxData.avatarUrl}
-                            alt={robloxData.displayName || robloxData.name}
-                            className="h-44 w-44 rounded-3xl object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-44 w-44 items-center justify-center rounded-3xl bg-white/10">
-                            <User className="h-12 w-12 text-zinc-300" />
-                          </div>
-                        )}
-                        <div className="text-center">
-                          <h2 className="text-2xl font-bold">{robloxData.displayName || robloxData.name}</h2>
-                          <p className="text-zinc-300">@{robloxData.name}</p>
-                        </div>
-                        {robloxProfileUrl && (
-                          <a
-                            href={robloxProfileUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-2 text-sm text-zinc-200 underline"
-                          >
-                            Open Roblox profile <ExternalLink className="h-4 w-4" />
-                          </a>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                      <InfoCard label="User ID" value={String(robloxData.id)} />
-                      <InfoCard label="Account Status" value={robloxData.isBanned ? 'Banned' : 'Active'} />
-                      <InfoCard label="Friends" value={safeCount(robloxData.friendsCount)} />
-                      <InfoCard label="Followers" value={safeCount(robloxData.followersCount)} />
-                      <InfoCard label="Following" value={safeCount(robloxData.followingCount)} />
-                      <InfoCard label="Has Premium" value={robloxData.hasVerifiedBadge ? 'Verified badge' : 'No verified badge'} />
-                      <InfoCard label="Description" value={robloxData.description || 'No public description'} wide />
+                  <div className="alert alert-error">
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <AlertCircle style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} />
+                      <span>{robloxError}</span>
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          <TabsContent value="discord">
-            <Card className="rounded-3xl border-white/10 bg-white/5 text-white shadow-xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Shield className="h-5 w-5" /> Discord User Lookup
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-100">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Discord lookup by arbitrary username is not something a browser-only public site can do reliably. The practical setup is: enter a Discord user ID, then query your own backend route using your bot token.
-                  </AlertDescription>
-                </Alert>
+                {robloxData && (
+                  <div>
+                    {robloxData.avatarUrl && (
+                      <img 
+                        src={robloxData.avatarUrl} 
+                        alt={robloxData.name}
+                        className="avatar"
+                      />
+                    )}
+                    <div className="info-grid">
+                      <div className="info-card">
+                        <div className="info-label">Username</div>
+                        <div className="info-value">{robloxData.name}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">User ID</div>
+                        <div className="info-value">{robloxData.id}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">Created</div>
+                        <div className="info-value">{new Date(robloxData.created).toLocaleDateString()}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">Friends</div>
+                        <div className="info-value">{safeCount(robloxData.friendsCount)}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">Followers</div>
+                        <div className="info-value">{safeCount(robloxData.followersCount)}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">Following</div>
+                        <div className="info-value">{safeCount(robloxData.followingCount)}</div>
+                      </div>
+                    </div>
+                    {robloxProfileUrl && (
+                      <a 
+                        href={robloxProfileUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="profile-link"
+                      >
+                        View Profile <ExternalLink style={{ width: '1rem', height: '1rem' }} />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <Input
+          {activeTab === 'discord' && (
+            <div className="card">
+              <div style={{ marginBottom: '1.5rem' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Shield style={{ width: '1.25rem', height: '1.25rem' }} /> Discord User Lookup
+                </div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="alert alert-warning">
+                  <strong>Note:</strong> Discord user lookup requires a bot token configured on the backend. Public username search is not available from a browser. Use a user ID (17-20 digits) for best results.
+                </div>
+
+                <div className="flex-row">
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="Enter a Discord user ID"
                     value={discordQuery}
                     onChange={(e) => setDiscordQuery(e.target.value)}
-                    placeholder="Enter Discord user ID"
-                    className="border-white/10 bg-black/30 text-white placeholder:text-zinc-400"
                     onKeyDown={(e) => e.key === 'Enter' && searchDiscord()}
                   />
-                  <Button onClick={searchDiscord} disabled={discordLoading} className="rounded-2xl">
-                    {discordLoading ? 'Searching...' : 'Search Discord'}
-                  </Button>
+                  <button 
+                    className="button" 
+                    onClick={searchDiscord} 
+                    disabled={discordLoading}
+                  >
+                    {discordLoading ? 'Searching...' : 'Search'}
+                  </button>
                 </div>
 
                 {discordError && (
-                  <Alert className="border-red-500/30 bg-red-500/10 text-red-100">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>{discordError}</AlertDescription>
-                  </Alert>
-                )}
-
-                {discordData && (
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                    <InfoCard label="User ID" value={discordData.id || 'Unknown'} />
-                    <InfoCard label="Username" value={discordData.username || 'Unknown'} />
-                    <InfoCard label="Global Name" value={discordData.global_name || 'None'} />
-                    <InfoCard label="Bot" value={discordData.bot ? 'Yes' : 'No'} />
+                  <div className="alert alert-error">
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <AlertCircle style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0 }} />
+                      <span>{discordError}</span>
+                    </div>
                   </div>
                 )}
 
-                <Card className="rounded-3xl border-white/10 bg-black/20 text-white">
-                  <CardContent className="p-6">
-                    <p className="mb-3 text-sm font-semibold text-zinc-200">Setup Instructions</p>
-                    <ol className="space-y-2 text-sm text-zinc-300">
-                      <li>1. Create a Discord application at <a href="https://discord.com/developers/applications" target="_blank" rel="noreferrer" className="text-blue-400 underline">discord.com/developers</a></li>
-                      <li>2. Create a bot and copy the bot token</li>
-                      <li>3. Add to your Vercel environment variables: <code className="bg-black/50 px-2 py-1 rounded">DISCORD_BOT_TOKEN</code></li>
-                      <li>4. Redeploy your Vercel project</li>
-                    </ol>
-                  </CardContent>
-                </Card>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                {discordData && (
+                  <div>
+                    {discordData.avatar && (
+                      <img 
+                        src={`https://cdn.discordapp.com/avatars/${discordData.id}/${discordData.avatar}.png`}
+                        alt={discordData.username}
+                        className="avatar-circle"
+                      />
+                    )}
+                    <div className="info-grid">
+                      <div className="info-card">
+                        <div className="info-label">Username</div>
+                        <div className="info-value">{discordData.username}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">User ID</div>
+                        <div className="info-value">{discordData.id}</div>
+                      </div>
+                      <div className="info-card">
+                        <div className="info-label">Created</div>
+                        <div className="info-value">{new Date((discordData.id / 4194304) + 1420070400000).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="code-block">
+                  <pre>{`// /pages/api/discord-user.js (Next.js example)
+export default async function handler(req, res) {
+  const id = req.query.id;
+
+  if (!id) {
+    return res.status(400).json({ error: 'Missing id' });
+  }
+
+  const r = await fetch(\`https://discord.com/api/v10/users/\${id}\`, {
+    headers: {
+      Authorization: \`Bot \${process.env.DISCORD_BOT_TOKEN}\`,
+    },
+  });
+
+  const data = await r.json();
+  return res.status(r.status).json(data);
+}`}</pre>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  );
-}
-
-function InfoCard({ label, value, wide = false }) {
-  return (
-    <Card className={`rounded-3xl border-white/10 bg-black/20 text-white ${wide ? 'md:col-span-2 xl:col-span-4' : ''}`}>
-      <CardContent className="p-5">
-        <p className="text-xs uppercase tracking-[0.2em] text-zinc-400">{label}</p>
-        <p className="mt-2 break-words text-lg font-semibold text-zinc-100">{value}</p>
-      </CardContent>
-    </Card>
   );
 }
 

@@ -1,0 +1,8 @@
+{
+  "extends": "next/tsconfig",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}

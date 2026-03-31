@@ -38,18 +38,20 @@ export default function Home() {
     setLoading(true);
     try {
       const input = robloxQuery.trim();
-      let response = await fetch(`https://users.roblox.com/v1/users/get-by-username?username=${encodeURIComponent(input)}`);
+      const isNumeric = /^\d+$/.test(input);
 
-      if (response.status === 404 && /^\d+$/.test(input)) {
-        response = await fetch(`https://users.roblox.com/v1/users/${encodeURIComponent(input)}`);
-      }
+      // Use our API route instead of calling Roblox directly
+      const params = isNumeric
+        ? `id=${encodeURIComponent(input)}`
+        : `username=${encodeURIComponent(input)}`;
+
+      const response = await fetch(`/api/roblox-user?${params}`);
+      const body = await response.json();
 
       if (!response.ok) {
-        const msg = await response.text();
-        setError(`Roblox lookup failed: ${response.status} ${response.statusText} ${msg}`);
+        setError(`Roblox lookup failed: ${body.error ?? response.statusText}`);
       } else {
-        const profile = await response.json();
-        setRobloxResult(profile);
+        setRobloxResult(body);
       }
     } catch (err) {
       setError('Roblox lookup error: ' + err.message);

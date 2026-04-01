@@ -9,7 +9,7 @@ export default function Home() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [displayedTitle, setDisplayedTitle] = useState('');
-  
+
   const fullTitle = 'BloxyFlips Info';
   
   useEffect(() => {
@@ -87,322 +87,503 @@ export default function Home() {
     }
   }
 
-  const tabStyles = {
-    display: 'inline-block',
-    padding: '12px 24px',
-    borderRadius: '8px 8px 0 0',
-    border: '2px solid #00ff88',
-    borderBottom: '0',
-    color: '#00ff88',
-    cursor: 'pointer',
-    marginRight: '8px',
-    backgroundColor: 'rgba(0, 20, 40, 0.6)',
-    fontWeight: 'bold',
-    textShadow: '0 0 10px #00ff88',
-    transition: 'all 0.3s ease'
-  };
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index <= fullTitle.length) {
+        setDisplayedTitle(fullTitle.slice(0, index));
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 80);
+    return () => clearInterval(interval);
+  }, []);
 
-  const activeTabStyles = {
-    ...tabStyles,
-    backgroundColor: 'rgba(0, 255, 136, 0.1)',
-    boxShadow: '0 0 20px #00ff88, inset 0 0 10px rgba(0, 255, 136, 0.2)'
-  };
+  async function searchRoblox(e) {
+    e.preventDefault();
+    setError('');
+    setRobloxResult(null);
+    if (!robloxQuery.trim()) {
+      setError('Roblox username or ID required.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const input = robloxQuery.trim();
+      const isNumeric = /^\d+$/.test(input);
+
+      const params = isNumeric
+        ? `id=${encodeURIComponent(input)}`
+        : `username=${encodeURIComponent(input)}`;
+
+      const response = await fetch(`/api/roblox-user?${params}`);
+      const body = await response.json();
+
+      if (!response.ok) {
+        setError(`Roblox lookup failed: ${body.error || body.errors?.[0]?.message || response.statusText}`);
+      } else if (!body.id) {
+        setError('User not found.');
+      } else {
+        setRobloxResult(body);
+      }
+    } catch (err) {
+      setError('Roblox lookup error: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function searchDiscord(e) {
+    e.preventDefault();
+    setError('');
+    setDiscordResult(null);
+    if (!discordQuery.trim()) {
+      setError('Discord user ID required.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const id = discordQuery.trim();
+      const response = await fetch(`/api/discord-user?userId=${encodeURIComponent(id)}`);
+      const body = await response.json();
+
+      if (!response.ok) {
+        setError(`Discord lookup failed: ${body.error || response.statusText}`);
+      } else {
+        setDiscordResult(body);
+      }
+    } catch (err) {
+      setError('Discord lookup error: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <>
-      <style>{`
-        @keyframes gradientShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        @keyframes neon {
-          0%, 100% { text-shadow: 0 0 10px #00ff88, 0 0 20px #00ff88, 0 0 40px #00ff88; }
-          50% { text-shadow: 0 0 30px #00ff88, 0 0 60px #00ff88, 0 0 80px #ff00ff; }
-        }
-        body { margin: 0; padding: 0; }
-      `}</style>
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(-45deg, #001f3f, #003d7a, #1a005e, #2a0845)',
-        backgroundSize: '400% 400%',
-        animation: 'gradientShift 15s ease infinite',
-        color: '#fff',
-        fontFamily: "'Arial', system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Animated background elements */}
-        <div style={{
-          position: 'absolute',
-          width: '400px',
-          height: '400px',
-          background: 'radial-gradient(circle, rgba(0, 255, 136, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          top: '10%',
-          left: '10%',
-          animation: 'float 20s ease-in-out infinite',
-          filter: 'blur(40px)'
-        }} />
-        <div style={{
-          position: 'absolute',
-          width: '300px',
-          height: '300px',
-          background: 'radial-gradient(circle, rgba(255, 0, 255, 0.1) 0%, transparent 70%)',
-          borderRadius: '50%',
-          bottom: '15%',
-          right: '10%',
-          animation: 'float 25s ease-in-out infinite reverse',
-          filter: 'blur(40px)'
-        }} />
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.05) 0%, transparent 50%)',
-          pointerEvents: 'none'
-        }} />
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '40px 20px', position: 'relative', zIndex: 1 }}>
-          <div style={{ marginBottom: 32, textAlign: 'center' }}>
-            <h1 style={{ 
-              fontSize: 48, 
-              marginBottom: 8,
-              animation: 'neon 3s ease-in-out infinite',
-              fontWeight: 'bold',
-              letterSpacing: '3px'
-            }}>
-              {displayedTitle}
-              {displayedTitle.length < fullTitle.length && <span style={{ animation: 'pulse 1s infinite' }}>|</span>}
-            </h1>
-            <p style={{ marginBottom: 24, color: '#00ff88', fontSize: 16, textShadow: '0 0 10px rgba(0, 255, 136, 0.5)', fontWeight: 'bold' }}>
-              ⚡ Insane Roblox & Discord Lookup Tool ⚡
-            </p>
-          </div>
+    <main style={styles.container}>
+      <style>{styles.globalStyles}</style>
 
-          <div style={{ marginBottom: 16, textAlign: 'center' }}>
-            <button
-              onClick={() => setActiveTab('roblox')}
-              style={activeTab === 'roblox' ? activeTabStyles : tabStyles}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'roblox') {
-                  e.target.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.5)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'roblox') {
-                  e.target.style.boxShadow = 'none';
-                }
-              }}
-            >
-              🎮 ROBLOX
-            </button>
-            <button
-              onClick={() => setActiveTab('discord')}
-              style={activeTab === 'discord' ? activeTabStyles : tabStyles}
-              onMouseEnter={(e) => {
-                if (activeTab !== 'discord') {
-                  e.target.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.5)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (activeTab !== 'discord') {
-                  e.target.style.boxShadow = 'none';
-                }
-              }}
-            >
-              💬 DISCORD
-            </button>
-          </div>
+      {/* Animated background with natural elements */}
+      <div style={styles.starsContainer}>
+        {[...Array(80)].map((_, i) => (
+          <div key={i} style={{
+            ...styles.star,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 70}%`,
+            animationDelay: `${Math.random() * 5}s`
+          }} />
+        ))}
+      </div>
 
-          <div style={{
-            border: '3px solid #00ff88',
-            borderRadius: 15,
-            padding: 24,
-            backgroundColor: 'rgba(10, 28, 52, 0.85)',
-            boxShadow: '0 0 30px rgba(0, 255, 136, 0.2), inset 0 0 20px rgba(0, 255, 136, 0.05)',
-            backdropFilter: 'blur(10px)'
-          }}>
-            {activeTab === 'roblox' && (
-              <form onSubmit={searchRoblox}>
-                <label style={{ display: 'block', marginBottom: 12, fontSize: 16, fontWeight: 'bold', color: '#00ff88', textShadow: '0 0 10px rgba(0, 255, 136, 0.5)' }}>
-                  🎮 Enter Roblox Username or ID
-                </label>
+      {/* Sun */}
+      <div style={styles.sun} />
+
+      {/* Moon */}
+      <div style={styles.moon} />
+
+      {/* Clouds */}
+      <div style={{...styles.cloud, top: '15%', left: '5%', width: '180px'}} />
+      <div style={{...styles.cloud, top: '25%', right: '8%', width: '220px', animationDirection: 'reverse'}} />
+      <div style={{...styles.cloud, bottom: '20%', left: '10%', width: '200px', animationDelay: '3s'}} />
+
+      {/* Lightning bolts (decorative) */}
+      <div style={{...styles.lightning, top: '10%', right: '15%'}} />
+
+      {/* Content */}
+      <div style={styles.content}>
+        <h1 style={styles.title}>
+          {displayedTitle}
+          {displayedTitle.length < fullTitle.length && <span style={styles.cursor}>|</span>}
+        </h1>
+
+        <div style={styles.tabBar}>
+          <button
+            onClick={() => setActiveTab('roblox')}
+            style={{
+              ...styles.tabButton,
+              ...(activeTab === 'roblox' ? styles.tabActive : styles.tabInactive)
+            }}
+          >
+            🎮 Roblox
+          </button>
+          <button
+            onClick={() => setActiveTab('discord')}
+            style={{
+              ...styles.tabButton,
+              ...(activeTab === 'discord' ? styles.tabActive : styles.tabInactive)
+            }}
+          >
+            💬 Discord
+          </button>
+        </div>
+
+        <div style={styles.card}>
+          {activeTab === 'roblox' && (
+            <div style={styles.tabContent}>
+              <form onSubmit={searchRoblox} style={styles.form}>
                 <input
+                  type="text"
+                  placeholder="Enter Roblox username or ID..."
                   value={robloxQuery}
                   onChange={(e) => setRobloxQuery(e.target.value)}
-                  placeholder="e.g. builderman or 1"
-                  style={{
-                    width: '100%',
-                    padding: 14,
-                    marginBottom: 12,
-                    borderRadius: 8,
-                    border: '2px solid #00ff88',
-                    backgroundColor: 'rgba(15, 27, 54, 0.8)',
-                    color: '#00ff88',
-                    fontSize: 14,
-                    boxShadow: '0 0 10px rgba(0, 255, 136, 0.1)',
-                    transition: 'all 0.3s ease',
-                    fontWeight: 'bold'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 10px rgba(0, 255, 136, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.1)';
-                  }}
+                  style={styles.input}
                 />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    padding: '12px 24px',
-                    borderRadius: 8,
-                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
-                    color: '#00ff88',
-                    border: '2px solid #00ff88',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontWeight: 'bold',
-                    textShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
-                    boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',
-                    opacity: loading ? 0.5 : 1,
-                    transition: 'all 0.3s ease',
-                    fontSize: 14
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!loading) {
-                      e.target.style.boxShadow = '0 0 30px rgba(0, 255, 136, 0.6)';
-                      e.target.style.backgroundColor = 'rgba(0, 255, 136, 0.3)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!loading) {
-                      e.target.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.2)';
-                      e.target.style.backgroundColor = 'rgba(0, 255, 136, 0.2)';
-                    }
-                  }}
-                >
-                  ⚡ SEARCH
+                <button type="submit" disabled={loading} style={styles.submitBtn}>
+                  {loading ? 'Searching...' : 'Search'}
                 </button>
+              </form>
 
-                {robloxResult && (
-                  <div style={{ marginTop: 20, backgroundColor: 'rgba(0, 255, 136, 0.05)', padding: 16, borderRadius: 10, border: '2px solid rgba(0, 255, 136, 0.3)', boxShadow: '0 0 20px rgba(0, 255, 136, 0.1)' }}>
-                    <div style={{ fontSize: 14, lineHeight: 1.8 }}>
-                      <div style={{ color: '#00ff88', fontWeight: 'bold', marginBottom: 8 }}>✅ User Found</div>
-                      <div><strong style={{ color: '#00ff88' }}>ID:</strong> <span style={{ color: '#fff' }}>{robloxResult.id}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Username:</strong> <span style={{ color: '#fff' }}>{robloxResult.name}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Display Name:</strong> <span style={{ color: '#fff' }}>{robloxResult.displayName || '(none)'}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Created:</strong> <span style={{ color: '#fff' }}>{new Date(robloxResult.created).toLocaleString()}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Is Banned:</strong> <span style={{ color: robloxResult.isBanned ? '#ff6b6b' : '#00ff88', fontWeight: 'bold' }}>{robloxResult.isBanned ? 'Yes ❌' : 'No ✓'}</span></div>
+              {error && <div style={styles.error}>{error}</div>}
+
+              {robloxResult && (
+                <div style={styles.result}>
+                  <h2 style={styles.resultTitle}>{robloxResult.name}</h2>
+                  <div style={styles.resultGrid}>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>ID:</span>
+                      <span style={styles.value}>{robloxResult.id}</span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>Display Name:</span>
+                      <span style={styles.value}>{robloxResult.displayName}</span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>Created:</span>
+                      <span style={styles.value}>{new Date(robloxResult.created).toLocaleDateString()}</span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>Status:</span>
+                      <span style={styles.value}>{robloxResult.isBanned ? '🚫 Banned' : '✅ Active'}</span>
                     </div>
                   </div>
-                )}
-              </form>
-            )}
+                </div>
+              )}
+            </div>
+          )}
 
-            {activeTab === 'discord' && (
-              <form onSubmit={searchDiscord}>
-                <label style={{ display: 'block', marginBottom: 12, fontSize: 16, fontWeight: 'bold', color: '#00ff88', textShadow: '0 0 10px rgba(0, 255, 136, 0.5)' }}>
-                  💬 Enter Discord User ID
-                </label>
+          {activeTab === 'discord' && (
+            <div style={styles.tabContent}>
+              <form onSubmit={searchDiscord} style={styles.form}>
                 <input
+                  type="text"
+                  placeholder="Enter Discord user ID..."
                   value={discordQuery}
                   onChange={(e) => setDiscordQuery(e.target.value)}
-                  placeholder="Ex. 80351110224678912"
-                  style={{
-                    width: '100%',
-                    padding: 14,
-                    marginBottom: 12,
-                    borderRadius: 8,
-                    border: '2px solid #00ff88',
-                    backgroundColor: 'rgba(15, 27, 54, 0.8)',
-                    color: '#00ff88',
-                    fontSize: 14,
-                    boxShadow: '0 0 10px rgba(0, 255, 136, 0.1)',
-                    transition: 'all 0.3s ease',
-                    fontWeight: 'bold'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 10px rgba(0, 255, 136, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.1)';
-                  }}
+                  style={styles.input}
                 />
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    padding: '12px 24px',
-                    borderRadius: 8,
-                    backgroundColor: 'rgba(0, 255, 136, 0.2)',
-                    color: '#00ff88',
-                    border: '2px solid #00ff88',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontWeight: 'bold',
-                    textShadow: '0 0 10px rgba(0, 255, 136, 0.5)',
-                    boxShadow: '0 0 15px rgba(0, 255, 136, 0.2)',
-                    opacity: loading ? 0.5 : 1,
-                    transition: 'all 0.3s ease',
-                    fontSize: 14
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!loading) {
-                      e.target.style.boxShadow = '0 0 30px rgba(0, 255, 136, 0.6)';
-                      e.target.style.backgroundColor = 'rgba(0, 255, 136, 0.3)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!loading) {
-                      e.target.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.2)';
-                      e.target.style.backgroundColor = 'rgba(0, 255, 136, 0.2)';
-                    }
-                  }}
-                >
-                  ⚡ SEARCH
+                <button type="submit" disabled={loading} style={styles.submitBtn}>
+                  {loading ? 'Searching...' : 'Search'}
                 </button>
+              </form>
 
-                {discordResult && (
-                  <div style={{ marginTop: 20, backgroundColor: 'rgba(0, 255, 136, 0.05)', padding: 16, borderRadius: 10, border: '2px solid rgba(0, 255, 136, 0.3)', boxShadow: '0 0 20px rgba(0, 255, 136, 0.1)' }}>
-                    <div style={{ fontSize: 14, lineHeight: 1.8 }}>
-                      <div style={{ color: '#00ff88', fontWeight: 'bold', marginBottom: 12 }}>✅ User Found</div>
-                      <div><strong style={{ color: '#00ff88' }}>ID:</strong> <span style={{ color: '#fff' }}>{discordResult.id}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Username:</strong> <span style={{ color: '#fff' }}>{discordResult.username}#{discordResult.discriminator}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Bot:</strong> <span style={{ color: discordResult.bot ? '#ff6b6b' : '#00ff88' }}>{discordResult.bot ? 'Yes 🤖' : 'No'}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>System:</strong> <span style={{ color: discordResult.system ? '#ff6b6b' : '#00ff88' }}>{discordResult.system ? 'Yes' : 'No'}</span></div>
-                      <div><strong style={{ color: '#00ff88' }}>Created:</strong> <span style={{ color: '#fff' }}>{new Date((BigInt(discordResult.id) >> 22n) + 1420070400000n).toLocaleString()}</span></div>
-                      {discordResult.avatar && (
-                        <div style={{ marginTop: 14 }}>
-                          <img
-                            alt="Discord avatar"
-                            src={`https://cdn.discordapp.com/avatars/${discordResult.id}/${discordResult.avatar}.png?size=256`}
-                            width={100}
-                            height={100}
-                            style={{ borderRadius: 12, border: '3px solid #00ff88', boxShadow: '0 0 15px rgba(0, 255, 136, 0.3)' }}
-                          />
-                        </div>
-                      )}
+              {error && <div style={styles.error}>{error}</div>}
+
+              {discordResult && (
+                <div style={styles.result}>
+                  <h2 style={styles.resultTitle}>{discordResult.username}</h2>
+                  <div style={styles.resultGrid}>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>ID:</span>
+                      <span style={styles.value}>{discordResult.id}</span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>Tag:</span>
+                      <span style={styles.value}>{discordResult.username}#{discordResult.discriminator}</span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>Bot:</span>
+                      <span style={styles.value}>{discordResult.bot ? '🤖 Yes' : '👤 No'}</span>
+                    </div>
+                    <div style={styles.resultItem}>
+                      <span style={styles.label}>Status:</span>
+                      <span style={styles.value}>✅ User Found</span>
                     </div>
                   </div>
-                )}
-              </form>
-            )}
+                </div>
+              )}
+            </div>
+          )}
 
-            {loading && <p style={{ color: '#00ff88', marginTop: 12, fontSize: 16, fontWeight: 'bold', textShadow: '0 0 10px rgba(0, 255, 136, 0.5)', animation: 'pulse 1.5s infinite' }}>⚡ Loading...</p>}
-            {error && <p style={{ color: '#ff6b6b', marginTop: 12, fontSize: 14, fontWeight: 'bold', textShadow: '0 0 10px rgba(255, 107, 107, 0.5)', padding: '10px', backgroundColor: 'rgba(255, 107, 107, 0.1)', borderRadius: 8, border: '2px solid #ff6b6b' }}>❌ {error}</p>}
-          </div>
+          {loading && <div style={styles.loading}>⏳ Searching...</div>}
         </div>
       </div>
-    </>
+    </main>
   );
 }
+
+const styles = {
+  globalStyles: `
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+    @keyframes slide {
+      0% { transform: translateX(-30px); }
+      100% { transform: translateX(100vw); }
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+  `,
+
+  container: {
+    minHeight: '100vh',
+    position: 'relative',
+    overflow: 'hidden',
+    background: 'linear-gradient(180deg, #0a0e27 0%, #1a1a3e 20%, #2d1b4e 40%, #1e3c72 60%, #0a0e27 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontFamily: '"Segoe UI", Roboto, sans-serif',
+    color: '#fff',
+    padding: '20px',
+  },
+
+  starsContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    top: 0,
+    left: 0,
+  },
+
+  star: {
+    position: 'absolute',
+    width: '2px',
+    height: '2px',
+    background: 'white',
+    borderRadius: '50%',
+    animation: 'twinkle 4s ease-in-out infinite',
+    boxShadow: '0 0 3px rgba(255, 255, 255, 0.8)',
+  },
+
+  sun: {
+    position: 'absolute',
+    width: '120px',
+    height: '120px',
+    background: 'radial-gradient(circle, #ff9500, #ff6b35)',
+    borderRadius: '50%',
+    top: '8%',
+    right: '8%',
+    opacity: 0.2,
+    boxShadow: '0 0 100px rgba(255, 107, 53, 0.3)',
+  },
+
+  moon: {
+    position: 'absolute',
+    width: '100px',
+    height: '100px',
+    background: 'radial-gradient(circle at 35% 35%, #ffffff, #e0f2fe)',
+    borderRadius: '50%',
+    top: '12%',
+    left: '7%',
+    opacity: 0.25,
+    boxShadow: '0 0 60px rgba(255, 255, 255, 0.2) inset',
+  },
+
+  cloud: {
+    position: 'absolute',
+    height: '50px',
+    background: 'radial-gradient(ellipse, rgba(255, 255, 255, 0.15), transparent 70%)',
+    borderRadius: '50%',
+    animation: 'float 25s linear infinite',
+    opacity: 0.3,
+  },
+
+  lightning: {
+    position: 'absolute',
+    width: '4px',
+    height: '80px',
+    background: 'linear-gradient(180deg, #ff6b6b 0%, rgba(255, 107, 107, 0.3) 100%)',
+    animation: 'slide 3s ease-in-out infinite',
+    boxShadow: '0 0 20px rgba(255, 107, 107, 0.5)',
+    opacity: 0.6,
+  },
+
+  content: {
+    position: 'relative',
+    zIndex: 10,
+    maxWidth: '650px',
+    width: '100%',
+    textAlign: 'center',
+  },
+
+  title: {
+    fontSize: '3.5rem',
+    fontWeight: 'bold',
+    background: 'linear-gradient(120deg, #3b82f6, #8b5cf6, #ec4899, #f97316, #ffffff)',
+    backgroundSize: '200% 200%',
+    animation: 'gradient 6s ease infinite',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    marginBottom: '20px',
+    letterSpacing: '2px',
+    textShadow: '0 0 30px rgba(139, 92, 246, 0.3)',
+  },
+
+  cursor: {
+    animation: 'twinkle 1s infinite',
+    marginLeft: '5px',
+  },
+
+  tabBar: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '15px',
+    marginBottom: '25px',
+  },
+
+  tabButton: {
+    padding: '12px 28px',
+    fontSize: '1rem',
+    fontWeight: '600',
+    border: 'none',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    background: 'rgba(255, 255, 255, 0.1)',
+    color: '#a8b3c1',
+    backdropFilter: 'blur(10px)',
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    borderWidth: '2px',
+  },
+
+  tabActive: {
+    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+    color: 'white',
+    boxShadow: '0 8px 32px rgba(59, 130, 246, 0.4)',
+    borderColor: 'rgba(59, 130, 246, 0.5)',
+  },
+
+  tabInactive: {
+    '&:hover': {
+      background: 'rgba(255, 255, 255, 0.15)',
+    },
+  },
+
+  card: {
+    background: 'rgba(20, 28, 60, 0.8)',
+    backdropFilter: 'blur(20px)',
+    border: '2px solid rgba(255, 255, 255, 0.15)',
+    borderRadius: '20px',
+    padding: '40px 35px',
+    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.15)',
+  },
+
+  tabContent: {
+    width: '100%',
+  },
+
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '18px',
+    marginBottom: '25px',
+  },
+
+  input: {
+    padding: '14px 18px',
+    fontSize: '1rem',
+    border: '2px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '12px',
+    background: 'rgba(255, 255, 255, 0.05)',
+    color: 'white',
+    transition: 'all 0.3s ease',
+    outline: 'none',
+    backdropFilter: 'blur(10px)',
+  },
+
+  submitBtn: {
+    padding: '14px 28px',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    border: 'none',
+    borderRadius: '12px',
+    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)',
+    color: 'white',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
+  },
+
+  error: {
+    background: 'rgba(239, 68, 68, 0.15)',
+    border: '2px solid rgba(239, 68, 68, 0.5)',
+    color: '#f87171',
+    padding: '15px 20px',
+    borderRadius: '12px',
+    marginBottom: '20px',
+    fontWeight: '500',
+  },
+
+  loading: {
+    color: '#6366f1',
+    fontSize: '1.1rem',
+    fontWeight: '600',
+    padding: '20px',
+    animation: 'twinkle 1.5s infinite',
+  },
+
+  result: {
+    background: 'rgba(59, 130, 246, 0.12)',
+    border: '2px solid rgba(59, 130, 246, 0.4)',
+    borderRadius: '15px',
+    padding: '25px',
+    backdropFilter: 'blur(10px)',
+  },
+
+  resultTitle: {
+    fontSize: '1.8rem',
+    color: '#e0f2fe',
+    marginBottom: '20px',
+    background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  },
+
+  resultGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '15px',
+  },
+
+  resultItem: {
+    background: 'rgba(255, 255, 255, 0.08)',
+    padding: '12px',
+    borderRadius: '10px',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+  },
+
+  label: {
+    display: 'block',
+    fontSize: '0.85rem',
+    color: '#cbd5e1',
+    marginBottom: '5px',
+    fontWeight: '500',
+  },
+
+  value: {
+    display: 'block',
+    color: '#e0f2fe',
+    fontSize: '1rem',
+    fontWeight: '600',
+    wordBreak: 'break-all',
+  },
+};
 

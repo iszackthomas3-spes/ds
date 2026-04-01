@@ -7,34 +7,35 @@ export default async function handler(req, res) {
   }
 
   try {
-    let response;
     let profile;
 
     if (username) {
-      // Try to get user by username first
-      response = await fetch(`https://users.roblox.com/v1/users/get-by-username?username=${encodeURIComponent(username)}`);
+      // Try to get user by username
+      let response = await fetch(`https://users.roblox.com/v1/users/get-by-username?username=${encodeURIComponent(username)}`);
+      
       if (response.ok) {
-        profile = await response.json();
-      } else if (response.status === 404 && /^\d+$/.test(username)) {
-        // If username lookup fails and input looks like an ID, try ID lookup
+        const data = await response.json();
+        // The response has a 'user' property
+        profile = data.user || data;
+      } else if (/^\d+$/.test(username)) {
+        // If username lookup fails and input is numeric, try ID lookup
         response = await fetch(`https://users.roblox.com/v1/users/${encodeURIComponent(username)}`);
         if (response.ok) {
           profile = await response.json();
+        } else {
+          return res.status(404).json({ error: 'User not found' });
         }
+      } else {
+        return res.status(404).json({ error: 'User not found' });
       }
     } else if (id) {
       // Direct ID lookup
-      response = await fetch(`https://users.roblox.com/v1/users/${encodeURIComponent(id)}`);
+      const response = await fetch(`https://users.roblox.com/v1/users/${encodeURIComponent(id)}`);
       if (response.ok) {
         profile = await response.json();
+      } else {
+        return res.status(404).json({ error: 'User not found' });
       }
-    }
-
-    if (!response || !response.ok) {
-      const errorData = response ? await response.json().catch(() => ({})) : {};
-      return res.status(response?.status || 500).json({
-        error: errorData.errors?.[0]?.message || `Roblox API error: ${response?.status || 'Unknown'}`
-      });
     }
 
     return res.status(200).json(profile);
